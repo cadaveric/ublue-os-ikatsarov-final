@@ -22,3 +22,19 @@ dnf5 install -y tmux vim
 #### Example for enabling a System Unit File
 
 systemctl enable podman.socket
+
+# 1) Ensure sshd is enabled
+systemctl enable sshd
+
+# 2) Open firewall for SSH (if you use firewalld)
+if systemctl is-enabled --quiet firewalld 2>/dev/null || systemctl is-active --quiet firewalld 2>/dev/null; then
+  firewall-cmd --permanent --add-service=ssh || true
+  firewall-cmd --reload || true
+fi
+
+install -d -m 0755 /etc/ssh/sshd_config.d
+
+cat > /etc/ssh/sshd_config.d/10-root-login.conf <<'EOF'
+PermitRootLogin yes
+PasswordAuthentication yes
+EOF
